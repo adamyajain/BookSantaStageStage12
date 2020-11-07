@@ -103,7 +103,7 @@ export default class SettingScreen extends Component {
                     />
                     <TouchableOpacity
                      style = {styles.button}
-                     onPress = {() => {this.updateUserDetails}}>
+                     onPress = {() => {this.updateUserDetails()}}>
                          <Text style = {styles.buttonText}>Save</Text>
                     </TouchableOpacity> 
                 </View>

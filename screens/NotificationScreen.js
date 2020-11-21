@@ -4,6 +4,7 @@ import { ListItem, Icon } from 'react-native-elements';
 import firebase from 'firebase';
 import MyHeader from '../components/MyHeader';
 
+import SwipeableFlatList from '../components/SwipableFlatList'
 import db from '../config';
 
 export default class NotificationScreen extends Component{

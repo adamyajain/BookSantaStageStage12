@@ -10,10 +10,14 @@
   "dependencies": {
     "@react-native-community/masked-view": "^0.1.7",
     "expo": "~39.0.2",
+    "expo-image-picker": "^9.1.1",
+    "expo-permissions": "^9.3.0",
     "expo-status-bar": "~1.0.2",
+    "firebase": "^8.1.1",
     "react": "^16.13.1",
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-39.0.3.tar.gz",
+    "react-native-elements": "^3.0.0-alpha.1",
     "react-native-web": "~0.13.12"
   },
   "devDependencies": {

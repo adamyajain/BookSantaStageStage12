@@ -7,10 +7,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Alert} from 'react-native';
+  Alert,
+  FlatList} from 'react-native';
 import db from '../config';
 import firebase from 'firebase';
 import MyHeader from '../components/MyHeader'
+import { BookSearch } from 'react-native-google-books'
+import { TouchableHighlight } from 'react-native';
 
 export default class BookRequestScreen extends Component{
   constructor(){
@@ -24,7 +27,10 @@ export default class BookRequestScreen extends Component{
       bookStatus:"",
       requestId:"",
       userDocId: '',
-      docId :''
+      docId :'',
+      imageLink : '',
+      dataSource : "",
+      showFlatList : false
     }
   }
 
@@ -37,13 +43,16 @@ export default class BookRequestScreen extends Component{
   addRequest = async (bookName,reasonToRequest)=>{
     var userId = this.state.userId
     var randomRequestId = this.createUniqueId()
+    var books = await BookSearch.searchbook(bookName ,' AIzaSyAY6G_3cel3Ko9FBz-zbEFPioqJxCg66Sc')
+    console.log("here in add request");
     db.collection('requested_books').add({
         "user_id": userId,
         "book_name":bookName,
         "reason_to_request":reasonToRequest,
         "request_id"  : randomRequestId,
         "book_status" : "requested",
-         "date"       : firebase.firestore.FieldValue.serverTimestamp()
+         "date"       : firebase.firestore.FieldValue.serverTimestamp(),
+         "image_link" : books.data[0].volumeInfo.imageLinks.smallThumbnail
 
     })
 
@@ -181,7 +190,46 @@ updateBookRequestStatus=()=>{
 
 }
 
+async getBooksFromApi (bookName){
+  this.setState({bookName:bookName})
+  if(bookName.length > 2){
+    var books = awaitBookSearch.searchbook(bookName, 'AIzaSyAY6G_3cel3Ko9FBz-zbEFPioqJxCg66Sc')
+    this.setState({
+      dataSource : books.data,
+      showFlatList : true
+    })
+  }
+    }
 
+  renderItem = ({item, i})=>{
+    console.log("image Link");
+
+    let obj = {
+      title:item.volumeInfo.title,
+      selfLink : item.selfLink,
+      buyLink : item.saleInfo.buyLink,
+      imageLink : item.volumeInfo.imageLinks
+    }
+
+    return(
+      <TouchableHighlight
+      style = {{alignItems : "center",
+                backgroundColor : "#DDDDDD",
+                padding : 10,
+                width : '90%'}}
+      activeOpacity = {0.6}
+      underlayColor = {"#DDDDDD"}
+      onPress = {() => {
+        this.setState({
+          showFlatList : false,
+          bookName : item.volumeInfo.title
+        })
+      }}
+      bottomdivider>
+        <Text>{item.volumeInfo.title}</Text>
+      </TouchableHighlight>
+    )
+  }
   render(){
 
     if(this.state.IsBookRequestActive === true){
@@ -217,9 +265,7 @@ updateBookRequestStatus=()=>{
       // Form screen
         <View style={{flex:1}}>
           <MyHeader title="Request Book" navigation ={this.props.navigation}/>
-
-          <ScrollView>
-            <KeyboardAvoidingView style={styles.keyBoardStyle}>
+          <View>
               <TextInput
                 style ={styles.formTextInput}
                 placeholder={"enter book name"}
@@ -230,7 +276,16 @@ updateBookRequestStatus=()=>{
                 }}
                 value={this.state.bookName}
               />
-              <TextInput
+              {this.state.showFlatlist?(
+                <FlatList
+                  data = {this.state.dataSource}
+                  renderItem = {this.renderItem}
+                  enableEmptySections = {true}
+                  style = {{marginTop : 10}}
+                  keyExtractor = {(item, index) => index.toString()} />
+              ):(
+                <View style={{slignItems : 'center'}}>
+                <TextInput
                 style ={[styles.formTextInput,{height:300}]}
                 multiline
                 numberOfLines ={8}
@@ -249,10 +304,10 @@ updateBookRequestStatus=()=>{
                 >
                 <Text>Request</Text>
               </TouchableOpacity>
-
-            </KeyboardAvoidingView>
-            </ScrollView>
-        </View>
+              </View>
+              )}
+              </View>
+              </View>
     )
   }
 }
